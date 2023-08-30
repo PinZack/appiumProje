@@ -9,6 +9,9 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+import pages.KiwiPage;
+import utils.Driver;
+import utils.ReusableMethods;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -17,9 +20,11 @@ import java.util.concurrent.TimeUnit;
 public class KiwiApp {
 
 
-    AndroidDriver<AndroidElement> driver;
+    AndroidDriver<AndroidElement> driver = Driver.getAndroidDriver();
+    TouchAction action = new TouchAction<>(driver);
+    KiwiPage kiwiPage = new KiwiPage();
 
-    @BeforeTest
+   /* @BeforeTest
     public void setup() throws MalformedURLException {
 
         DesiredCapabilities capabilities = new DesiredCapabilities();
@@ -45,6 +50,8 @@ public class KiwiApp {
 
     }
 
+    */
+
     @Test
     public void kiwiAppTest() throws InterruptedException {
 
@@ -52,29 +59,63 @@ public class KiwiApp {
         // uygulamanin yuklendigi dogrulanir
         Assert.assertTrue(driver.isAppInstalled("com.skypicker.main"));
         // uygulamanin basariyla acildigi dogrulanir
-        AndroidElement devamETButonu=driver.findElementByXPath("//*[@text='Continue as a guest']");
-        Assert.assertTrue(devamETButonu.isDisplayed());
+        Assert.assertTrue(kiwiPage.misafirOlarakDevamEt.isDisplayed());
         // misafir olarak devam et e tiklanir
-        devamETButonu.click();
+        kiwiPage.misafirOlarakDevamEt.click();
         // ardinda gelecek olan 3 adimada yesil butona basilarak devam edilir
         //538,1689
-        TouchAction action =new TouchAction(driver);
         Thread.sleep(1000);
-        for (int i = 0; i <3 ; i++) {
-            action.press(PointOption.point(538,1689)).release().perform();
-            Thread.sleep(1000);
-        }
+        kiwiPage.ilkSayfaGecisleri();
         // Trip type,one way olarak secilir
-        // kalkis ulkesi secenegine tiklanir ve default olan ulke kaldirilir
-        // kalkis yapilacak ulke/sehir girilir ve sec e tiklanir
-        // varis ulkesi secenegine tiklanir ve gidilecek ulke girilir
-        // gidis tarihi eylul ayinin 21 i olarak secilir ve set date e tiklanir
-        // search butonuna tiklanir
-        // en  ucuz ve aktarmasiz filtrelemeleri yapilir
-        // gelen bilet fiyati kaydedilir ve kullanicin telefonuna sms olarak gonderilir
+        ReusableMethods.koordinatTiklama(303,624,1000);
+        ReusableMethods.koordinatTiklama(535,1444,1000);
 
+        // kalkis ulkesi secenegine tiklanir ve default olan ulke kaldirilir
+        ReusableMethods.koordinatTiklama(526,774,1000);
+        ReusableMethods.koordinatTiklama(1013,138,1000);
+        // kalkis yapilacak ulke/sehir girilir ve sec e tiklanir
+        if (driver.isKeyboardShown()){
+            driver.getKeyboard().pressKey("istanbul");
+        }else
+            kiwiPage.fromTextBox.sendKeys("Ankara");
+
+        ReusableMethods.koordinatTiklama(465,288,1000);
+        kiwiPage.chooseButon.click();
+
+        // varis ulkesi secenegine tiklanir ve gidilecek ulke girilir
+        ReusableMethods.koordinatTiklama(465,912,1000);
+        if (driver.isKeyboardShown()){
+            driver.getKeyboard().pressKey("nice");
+        }else
+            kiwiPage.fromTextBox.sendKeys("stockholm");
+
+        ReusableMethods.koordinatTiklama(465,288,1000);
+        kiwiPage.chooseButon.click();
+
+        // gidis tarihi eylul ayinin 21 i olarak secilir ve set date e tiklanir
+        ReusableMethods.koordinatTiklama(465,1052,1000);
+        //471,1371,480,187
+        ReusableMethods.screenScrollDownToUp(471,1371,850,471,187);
+        //ReusableMethods.screenScrollDown(1000);
+        ReusableMethods.koordinatTiklama(685,805,1000);
+        // search butonuna tiklanir
+        kiwiPage.setDateButonu.click();
+        Thread.sleep(500);
+        kiwiPage.aramaButonu.click();
+        // en  ucuz ve aktarmasiz filtrelemeleri yapilir
+        ReusableMethods.koordinatTiklama(254,257,500);
+        ReusableMethods.koordinatTiklama(502,578,500);
+        ReusableMethods.koordinatTiklama(523,257,500);
+        ReusableMethods.koordinatTiklama(514,1456,500);
+
+        // gelen bilet fiyati kaydedilir ve kullanicin telefonuna sms olarak gonderilir
+        String fiyatSon=kiwiPage.fiyatSonucu.getText();
+        driver.sendSMS("5555555555","son fiyat ektedir"+fiyatSon);
 
     }
 
 
 }
+
+
+
